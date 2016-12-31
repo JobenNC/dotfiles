@@ -1,0 +1,54 @@
+#!/bin/env python
+import os
+import sys
+from subprocess import *
+
+def set_minus_x():
+    global Popen
+    global PopenX
+    global PopenNoX
+    Popen = PopenX
+
+PopenNoX = Popen
+def PopenX(args, **kwargs):
+    print>>sys.stderr, '+ %s' % `args`
+    return PopenNoX(args, **kwargs)
+
+
+def usage(msg = None):
+    prog = os.path.basename(sys.argv[0])
+    if not msg is None:
+        print "%s: %s" % (prog, msg)
+    print "Usage:\n  %(argv0)s HORIZxVERT\nor\n  %(argv0)s HORIZ VERT" % {
+        'argv0': prog}
+    sys.exit(1)
+
+def main():
+    if len(sys.argv) == 2:
+        res = sys.argv[1]
+    elif len(sys.argv) == 3:
+        res = "%sx%s" % (sys.argv[1], sys.argv[2])
+    else:
+        usage()
+    try:
+        [x, y] = map(int, res.split('x'))
+        if x<0 or y<=0:
+            raise ValueError
+    except ValueError:
+        usage('Invalid resolution: %s' % res)
+    for l in Popen(['cvt', str(x), str(y)], stdout = PIPE).stdout.read().splitlines():
+        if l.startswith('Modeline'):
+            modeLine = l.split()[1:]
+            modeName = modeLine.pop(0)[1:-1]
+
+    # Get the output name
+    outputName = Popen(['xrandr'], stdout = PIPE).stdout.read().splitlines()[1].split()[0]
+
+    print 'Setting mode %s on %s' % (modeName, outputName)
+
+    Popen(['xrandr', '--newmode', modeName] + modeLine).wait()
+    Popen(['xrandr', '--addmode', outputName, modeName]).wait()
+    Popen(['xrandr', '-s', modeName]).wait()
+
+if __name__== "__main__":
+    main()
