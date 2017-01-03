@@ -52,7 +52,8 @@ i3 &
 #xclock -geometry 50x50-1+1 &
 #xterm -geometry 80x50+494+51 &
 #xterm -geometry 80x20+494-0 &
-feh --bg-scale /home/jjarriel/Pictures/DK.png;
+#feh --bg-scale /home/jjarriel/Pictures/DK.png;
+~/.fehbg;
 compton -b -i .5;
 #exec xterm -geometry 80x66+0+0 -name login
 exec termite --geometry 80x66+0+0 --name login
